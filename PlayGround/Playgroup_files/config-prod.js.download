@@ -1,0 +1,7 @@
+// Disable all logs on prod
+console.log = function() {}
+console.warn = function() {}
+
+const Config = {
+  api: "https://playgroup.community",
+}

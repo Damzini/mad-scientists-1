@@ -1,0 +1,120 @@
+document.addEventListener("DOMContentLoaded", function() {
+
+  document.addEventListener("click", function (event) {
+    if (event.target.matches(".btn-early-signup")) {
+        document.querySelector(".early-access-overlay").classList.add("show")
+    }
+
+    if (event.target.matches(".close-eary-access")) {
+        document.querySelector(".early-access-overlay").classList.remove("show")
+    }
+
+    if (event.target.matches("#request-early-access")) {
+        var email = document.querySelector("#early-access-email").value;
+        if (email.length == 0 || !email.includes("@")) {
+            document.querySelector(".beta-error").classList.remove("d-none")
+            return
+        }
+        var honey = parseInt(document.querySelector("#honey").value) + 2;
+        document.querySelector(".beta-error").classList.add("d-none")
+
+        fetch("/api/beta/signup", {
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json, text-plain, */*",
+                "X-Requested-With": "XMLHttpRequest"
+            },
+            method: 'POST',
+            body: JSON.stringify({
+                email: email,
+                honey: honey,
+            })
+        })
+        .then(response => response.json())
+        .then(function (res) {
+            if (res != "false" && res != false) {
+                document.querySelector(".early-access-overlay .enter").classList.add("d-none");
+                document.querySelector(".early-access-overlay .error").classList.add("d-none");
+                document.querySelector(".early-access-overlay .success").classList.remove("d-none");
+            }
+        })
+        .catch(function (error) {
+            document.querySelector(".early-access-overlay .enter").classList.add("d-none");
+            document.querySelector(".early-access-overlay .error").classList.remove("d-none");
+        });
+    }
+  });
+
+  if (document.querySelector("#billing-cycle")) {
+        document.querySelector("#billing-cycle").addEventListener("change", function (event) {
+            let cycle
+            if (this.checked) {
+                cycle = "annually"
+            } else {
+                cycle = "monthly"
+            }
+
+            changeBillingCycle(cycle)
+        })
+    }
+
+
+    var windowHeight;
+    var windowHeight = window.innerHeight;
+
+    function checkPosition() {
+        Array.from(document.querySelectorAll('.object-bubble')).forEach(element => {
+            var positionFromTop = element.getBoundingClientRect().top;
+            if (positionFromTop - windowHeight <= 0 && (windowHeight - positionFromTop) > 0) {
+                var val = ((windowHeight / 1.25) - positionFromTop) * 0.15;
+                element.style.transform = "translateY(-" + val + "px)";
+            }
+        })
+
+        Array.from(document.querySelectorAll('.member-bubble')).forEach(element => {
+            var positionFromTop = element.getBoundingClientRect().top;
+            if (positionFromTop - windowHeight <= 0 && (windowHeight - positionFromTop) > 0) {
+                var val = ((windowHeight / 1.25) - positionFromTop) * 0.15;
+                element.style.transform = "translateY(" + val + "px)";
+            }
+        })
+
+        var singleContent = document.querySelector(".single-content");
+        var header = document.querySelector(".header-wrap");
+        var doc = document.documentElement;
+        var top = (window.pageYOffset || doc.scrollTop)  - (doc.clientTop || 0);
+        if (top >= 150) {
+            header.classList.add("scrolled")
+        } else {
+            header.classList.remove("scrolled")
+        }
+
+        if (singleContent) {
+            if (singleContent.getBoundingClientRect().top <= 0) {
+                header.classList.add("white")
+            } else {
+                header.classList.remove("white")
+            }
+        }
+    }
+
+
+
+    function changeBillingCycle(cycle) {
+      if (cycle == "annually") {
+        document.querySelector(".starter-plan .price").innerHTML = "$190<span> /yr</span>"
+        document.querySelector(".professional-plan .price").innerHTML = "$490<span> /yr</span>"
+        document.querySelector(".business-plan .price").innerHTML = "$1990<span> /yr</span>"
+      }
+
+      if (cycle == "monthly") {
+        document.querySelector(".starter-plan .price").innerHTML = "$19<span> /mo</span>"
+        document.querySelector(".professional-plan .price").innerHTML = "$49<span> /mo</span>"
+        document.querySelector(".business-plan .price").innerHTML = "$199<span> /mo</span>"
+      }
+    }
+
+    window.addEventListener('scroll', checkPosition);
+    checkPosition();
+
+})
